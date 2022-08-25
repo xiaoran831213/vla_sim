@@ -1,0 +1,118 @@
+#+TITLE: Multivariate Covariance Statistics - Simulation
+#+AUTHOR: Xiaoran Tong
+#+OPTIONS: ^:{}
+
+Use  simulation to  study the  characteristics  of variance  / covariance  test
+statistics.
+
+Use HPCC for simulation study
+* simulation
+** (gsn) Gaussian phenotype
+   #+NAME: GSN_SIM
+   #+BEGIN_SRC sh :exports none :results none :var rep=1e2
+     f="Rscript -e \"source('gx2.R')"; g="a=.5, d=1, m0=-0.0, ve=1, rsp='gsn', rep=$rep"; d=run/gsn; rm -rf $d/* $d.*
+     printf "%s\n" {001..100}" "{4..16} | while read r n
+     do
+	 c="N=2^$n, $g, key='GSN', rsd=$r"; o="saveRDS(r, '{n:04X}.rpt')\""
+	 echo "$f; r <- sim($c, b=1, c=0.5, loc='ADD', tag='FUL', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.5, loc='ADD', tag='FUL', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=1, c=0.0, loc='ADD', tag='GXE', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.0, loc='ADD', tag='GXE', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=1, c=0.5, loc='MLT', tag='MLT', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.5, loc='MLT', tag='MLT', sim='FPR'); $o"
+     done | hpcwp - -d$d -q78 -m4 -p1 --wtm 3 --cp gx2.R --cp R --tag ${d##*/}$r --par discovery --log none
+   #+END_SRC
+** (b50) 50/50 Binomial
+   With 50% case rate.
+   #+NAME: B50_SIM
+   #+BEGIN_SRC sh :exports none :results none :var rep=1e1 :var dst="run/b50"
+     f="Rscript -e \"source('gx2.R')"; g="a=.1, d=4, m0=-0.0, ve=.1, rsp='bin', rep=$rep"; d=$dst; rm -rf $d/* $d.*
+     printf "%s\n" {001..100}" "{4..16} | while read r n
+     do
+	 c="N=2^$n, $g, key='B50', rsd=$r"; o="saveRDS(r, '{n:04X}.rpt')\""
+	 echo "$f; r <- sim($c, b=4, c=2.0, loc='ADD', tag='FUL', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=2.0, loc='ADD', tag='FUL', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=4, c=0.0, loc='ADD', tag='GXE', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.0, loc='ADD', tag='GXE', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=4, c=2.0, loc='MLT', tag='MLT', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=2.0, loc='MLT', tag='MLT', sim='FPR'); $o"
+     done | hpcwp - -d$d -q78 -m4 -p1 --wtm 3 --cp gx2.R --cp R --tag ${d##*/}$r --par discovery --log none
+   #+END_SRC
+** (b07) 07/93 Binomial
+   With 7.6% case rate.
+   #+NAME: B07_SIM
+   #+BEGIN_SRC sh :exports none :results none :var rep=1e1 :var dst="run/b07"
+     f="Rscript -e \"source('gx2.R')"; g="a=.1, d=4, m0=-2.5, ve=.1, rsp='bin', rep=$rep"; d=$dst; rm -rf $d/* $d.*
+     printf "%s\n" {001..100}" "{4..16} | while read r n
+     do
+	 c="N=2^$n, $g, key='B07', rsd=$r"; o="saveRDS(r, '{n:04X}.rpt')\""
+	 echo "$f; r <- sim($c, b=4, c=2.0, loc='ADD', tag='FUL', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=2.0, loc='ADD', tag='FUL', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=4, c=0.0, loc='ADD', tag='GXE', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.0, loc='ADD', tag='GXE', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=4, c=2.0, loc='MLT', tag='MLT', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=2.0, loc='MLT', tag='MLT', sim='FPR'); $o"
+     done | hpcwp - -d$d -q78 -m4 -p1 --wtm 3 --cp gx2.R --cp R --tag ${d##*/}$r --par discovery --log none
+   #+END_SRC
+** (p37) Poisson
+   With 36.7% zeros
+   #+NAME: P37_SIM
+   #+BEGIN_SRC sh :exports none :results none :var rep=1e1 :var dst="run/p37"
+     f="Rscript -e \"source('gx2.R')"; g="a=0.2, d=1, m0=-0.0, ve=.1, rsp='psn', rep=$rep"; d=$dst; rm -rf $d/* $d.*
+     printf "%s\n" {001..100}" "{4..16} | while read r n
+     do
+	 c="N=2^$n, $g, key='P37', rsd=$r"; o="saveRDS(r, '{n:04X}.rpt')\""
+	 echo "$f; r <- sim($c, b=1, c=0.5, loc='ADD', tag='FUL', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.5, loc='ADD', tag='FUL', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=1, c=0.0, loc='ADD', tag='GXE', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.0, loc='ADD', tag='GXE', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=1, c=0.5, loc='MLT', tag='MLT', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.5, loc='MLT', tag='MLT', sim='FPR'); $o"
+     done | hpcwp - -d$d -q78 -m4 -p1 --wtm 2 --cp '*.R' --cp R --tag ${d##*/}$r --par discovery --log none
+   #+END_SRC
+
+** (p92) Poisson
+   With 92.2% zeros
+   #+NAME: P92_SIM
+   #+BEGIN_SRC sh :exports none :results none :var rep=1e1 :var dst="run/p92"
+     f="Rscript -e \"source('gx2.R')"; g="a=0.2, d=1, m0=-2.5, ve=.1, rsp='psn', rep=$rep"; d=$dst; rm -rf $d/* $d.*
+     printf "%s\n" {001..100}" "{4..16} | while read r n
+     do
+	 c="N=2^$n, $g, key='P92', rsd=$r"; o="saveRDS(r, '{n:04X}.rpt')\""
+	 echo "$f; r <- sim($c, b=1, c=0.5, loc='ADD', tag='FUL', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.5, loc='ADD', tag='FUL', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=1, c=0.0, loc='ADD', tag='GXE', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.0, loc='ADD', tag='GXE', sim='FPR'); $o"
+	 echo "$f; r <- sim($c, b=1, c=0.5, loc='MLT', tag='MLT', sim='TPR'); $o"
+	 echo "$f; r <- sim($c, b=0, c=0.5, loc='MLT', tag='MLT', sim='FPR'); $o"
+     done | hpcwp - -d$d -q78 -m4 -p1 --wtm 2 --cp '*.R' --cp R --tag ${d##*/}$r --par discovery --log none
+   #+END_SRC
+
+* calls
+** simulation
+   #+CALL:GSN_SIM(rep=2e2)
+   #+CALL:B50_SIM(rep=2e2)
+   #+CALL:B07_SIM(rep=2e2)
+   #+CALL:P37_SIM(rep=2e2)
+   #+CALL:P92_SIM(rep=2e2)
+** reports
+   #+BEGIN_SRC R :exports none :results none
+     source("rpt.R"); plt("run/gsn", 'run/gsn.png', type=1)
+     source("rpt.R"); plt("run/b50", 'run/b50.png', type=1)
+     source("rpt.R"); plt("run/b07", 'run/b07.png', type=1)
+     source("rpt.R"); plt("run/p37", 'run/p37.png', type=1)
+     source("rpt.R"); plt("run/p92", 'run/p92.png', type=1)
+   #+END_SRC
+** combined for main text
+   #+BEGIN_SRC R :exports none :results none
+     source("rpt.R")
+     if(!file.exists("run/mix.rds"))
+     {
+       gsn <- readRDS("run/gsn.rds")
+       b50 <- readRDS("run/b50.rds")
+       b07 <- readRDS("run/b07.rds")
+       mix <- rbind(gsn, b50, b07)
+       saveRDS(mix, "run/mix.rds")
+     }
+     plt("run/mix", 'run/mix.png', type=2)
+   #+END_SRC
